@@ -122,10 +122,10 @@ class HBNBCommand(cmd.Cmd):
     args = args.split(" ")  # Split the input into tokens
     class_name = args[0]  # The first token is the class name
     params = args[1:]  # The rest of the tokens are parameters
-
-    if class_name not in HBNBCommand.classes:
-        print("** class doesn't exist **")
-        return
+    
+        if class_name not in HBNBCommand.classes:
+            print("** class doesn't exist **")
+            return
 
     # Create a dictionary to hold the parameters
     obj_params = {}
