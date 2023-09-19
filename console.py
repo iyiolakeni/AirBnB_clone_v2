@@ -134,10 +134,10 @@ class HBNBCommand(cmd.Cmd):
         for param in params:
             # Split each parameter into key and value using '=' as the separator
             key_value = param.split('=')
-
-                if len(key_value) != 2:
-                    print("Skipping invalid parameter: " + param)
-                    continue
+            
+            if len(key_value) != 2:
+                print("Skipping invalid parameter: " + param)
+                continue
 
             key, value = key_value[0], key_value[1]
 
