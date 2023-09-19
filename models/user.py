@@ -9,6 +9,7 @@ from sqlalchemy.orm import relationship
 class User(BaseModel, Base):
     """Represents the user"""
     __tablename__ = 'users'
+    id = Column(String(60), nullable=False, primary_key=True)
     email = Column(String(128), nullable=False)
     password = Column(String(128), nullable=False)
     first_name = Column(String(128), nullable=True)
