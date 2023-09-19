@@ -157,7 +157,7 @@ class HBNBCommand(cmd.Cmd):
                     # Integer
                     value = int(value)
             except ValueError:
-                print(f"Skipping invalid value for parameter {key}: {value}")
+                print("Skipping invalid value for parameter {}: {}".format(key, value))
                 continue
 
         # Add the key-value pair to the dictionary
