@@ -162,11 +162,11 @@ class HBNBCommand(cmd.Cmd):
 
             # Add the key-value pair to the dictionary
             obj_params[key] = value
-
-    # Create an instance of the class with the given parameters using kwargs
-    new_instance = HBNBCommand.classes[class_name](**obj_params)
-    storage.save()  # Save the object
-    print(new_instance.id)
+            
+        # Create an instance of the class with the given parameters using kwargs
+        new_instance = HBNBCommand.classes[class_name](**obj_params)
+        storage.save()  # Save the object
+        print(new_instance.id)
 
     def help_create(self):
         """ Help information for the create method """
