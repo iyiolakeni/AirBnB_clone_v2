@@ -123,7 +123,7 @@ class TestState(unittest.TestCase):
             mock_reload.assert_not_called()
 
     @unittest.skipIf(getenv("HBNB_TYPE_STORAGE") == "db", "Using DBStorage")
-        def test_save(self):
+    def test_save(self):
         state = State()
         with patch("models.storage.save") as mock_save:
             state.save()
