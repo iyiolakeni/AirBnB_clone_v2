@@ -118,50 +118,50 @@ class HBNBCommand(cmd.Cmd):
         if not args:
             print("** class name missing **")
             return
-
-    args = args.split(" ")  # Split the input into tokens
-    class_name = args[0]  # The first token is the class name
-    params = args[1:]  # The rest of the tokens are parameters
+            
+        args = args.split(" ")  # Split the input into tokens
+        class_name = args[0]  # The first token is the class name
+        params = args[1:]  # The rest of the tokens are parameters
     
         if class_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
 
-    # Create a dictionary to hold the parameters
-    obj_params = {}
+        # Create a dictionary to hold the parameters
+        obj_params = {}
 
-    # Iterate through the parameters
-    for param in params:
-        # Split each parameter into key and value using '=' as the separator
-        key_value = param.split('=')
+        # Iterate through the parameters
+        for param in params:
+            # Split each parameter into key and value using '=' as the separator
+            key_value = param.split('=')
 
-        if len(key_value) != 2:
-            print("Skipping invalid parameter: " + param)
-            continue
+                if len(key_value) != 2:
+                    print("Skipping invalid parameter: " + param)
+                    continue
 
-        key, value = key_value[0], key_value[1]
+            key, value = key_value[0], key_value[1]
 
-        # Remove any double quotes and replace underscores with spaces in the key
-        key = key.replace('_', ' ').strip()
-        # Remove double quotes from the value
-        if value.startswith('"') and value.endswith('"'):
-            value = value[1:-1]
+            # Remove any double quotes and replace underscores with spaces in the key
+            key = key.replace('_', ' ').strip()
+            # Remove double quotes from the value
+            if value.startswith('"') and value.endswith('"'):
+                value = value[1:-1]
 
-        # Try to cast the value to the appropriate type
-        if key in HBNBCommand.types:
-            try:
-                if '.' in value:
-                    # Float
-                    value = float(value)
-                else:
-                    # Integer
-                    value = int(value)
-            except ValueError:
-                print("Skipping invalid value for parameter {}: {}".format(key, value))
-                continue
+            # Try to cast the value to the appropriate type
+            if key in HBNBCommand.types:
+                try:
+                    if '.' in value:
+                        # Float
+                        value = float(value)
+                    else:
+                        # Integer
+                        value = int(value)
+                except ValueError:
+                    print("Skipping invalid value for parameter {}: {}".format(key, value))
+                    continue
 
-        # Add the key-value pair to the dictionary
-        obj_params[key] = value
+            # Add the key-value pair to the dictionary
+            obj_params[key] = value
 
     # Create an instance of the class with the given parameters using kwargs
     new_instance = HBNBCommand.classes[class_name](**obj_params)
