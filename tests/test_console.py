@@ -53,6 +53,5 @@ class TestHBNBCommand(unittest.TestCase):
         p = style.check_files(["console.py"])
         self.assertEqual(p.total_errors, 0, "fix Pep8")
 
-
 if __name__ == "__main__":
     unittest.main()
