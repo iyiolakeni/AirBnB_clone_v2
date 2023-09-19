@@ -136,7 +136,7 @@ class HBNBCommand(cmd.Cmd):
         key_value = param.split('=')
 
         if len(key_value) != 2:
-            print(f"Skipping invalid parameter: {param}")
+            print("Skipping invalid parameter: " + param)
             continue
 
         key, value = key_value[0], key_value[1]
