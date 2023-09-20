@@ -13,8 +13,8 @@ class FileStorage:
     """This class manages storage of hbnb models in JSON format"""
 
     def __init__(self):
-        __file_path = 'file.json'
-        __objects = {}
+        self.__file_path = 'file.json'
+        self.__objects = {}
 
     def all(self, cls=None):
         """Returns a dictionary of models currently in storage 
