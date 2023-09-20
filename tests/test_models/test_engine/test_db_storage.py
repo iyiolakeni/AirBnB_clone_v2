@@ -93,10 +93,10 @@ class TestDBStorage(unittest.TestCase):
         st = State(name="California")
         self.storage._DBStorage__session.add(st)
         self.storage.save()
-        db = MySQLdb.connect(user="hbnb_test",
-                             host="hbnb_test_host",
-                             passwd="hbnb_test_pwd",
-                             db="hbnb_test_db")
+        db = MySQLdb.connect(user="HBNB_MYSQL_USER",
+                             host="HBNB_MYSQL_HOST",
+                             passwd="HBNB_MYSQL_PWD",
+                             db="HBNB_MYSQL_DB")
         curs = db.cursor()
         curs.execute("SELECT * FROM states WHERE BINARY name = 'California'")
         count = curs.fetchall()
