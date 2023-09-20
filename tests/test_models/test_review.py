@@ -1,5 +1,6 @@
 #!/usr/bin/python3
-""" """
+""" Unittests for testing the Review class"""
+from os import getenv
 from tests.test_models.test_base_model import TestBaseModel
 from models.review import Review
 
@@ -13,17 +14,23 @@ class test_review(TestBaseModel):
         self.name = "Review"
         self.value = Review
 
-    def test_place_id(self):
-        """ """
+    def test_text(self):
+        """ testing review text attr"""
         new = self.value()
-        self.assertEqual(type(new.place_id), str)
+        self.assertEqual(type(new.text), str if
+                         getenv('HBNB_TYPE_STORAGE') != 'db'
+                         else type(None))
+
+    def test_place_id(self):
+        """ testing review place_id attr"""
+        new = self.value()
+        self.assertEqual(type(new.place_id), str if
+                         getenv('HBNB_TYPE_STORAGE') != 'db'
+                         else type(None))
 
     def test_user_id(self):
-        """ """
+        """ testing review user_id attr"""
         new = self.value()
-        self.assertEqual(type(new.user_id), str)
-
-    def test_text(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.text), str)
+        self.assertEqual(type(new.user_id), str if
+                         getenv('HBNB_TYPE_STORAGE') != 'db'
+                         else type(None))
