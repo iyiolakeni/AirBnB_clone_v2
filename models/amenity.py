@@ -7,6 +7,12 @@ from sqlalchemy.orm import relationship
 
 class Amenity(BaseModel, Base):
     """Representation of Amenity """
-    __tablename__ = "amenities"
-    name = Column(String(128), nullable=False)
-    place_amenities = relationship("Place", secondary="place_amenity", viewonly=False)
+    if getenv('HBNB_TYPE_STORAGE') == 'db':
+        __tablename__ = 'amenities'
+        name = Column(String(128), nullable=False)
+        place_amenities = relationship("Place", secondary="place_amenity",
+                                       viewonly=False)
+    else:
+        name = ""
+
+    __table_args__ = {'extend_existing': True}
