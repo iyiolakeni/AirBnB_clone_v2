@@ -6,6 +6,7 @@ from models.base_model import BaseModel
 from unittest.mock import patch
 import uuid
 
+
 class TestBaseModel(unittest.TestCase):
     def test_instance_creation(self):
         """Test if an instance of BaseModel is created properly"""
@@ -16,7 +17,7 @@ class TestBaseModel(unittest.TestCase):
         self.assertIsInstance(model.updated_at, datetime)
 
     def test_instance_creation_with_id(self):
-        """Test if an instance of BaseModel is created properly with a specified ID"""
+        """Test if an instance of BaseModel is created with a specified ID"""
         model = BaseModel(id="test_id")
         self.assertEqual(model.id, "test_id")
 
@@ -60,6 +61,7 @@ class TestBaseModel(unittest.TestCase):
         model = BaseModel()
         model.delete()
         mock_delete.assert_called_once_with(model)
+
 
 if __name__ == "__main__":
     unittest.main()

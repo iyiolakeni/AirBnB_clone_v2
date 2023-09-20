@@ -15,21 +15,21 @@ class test_review(TestBaseModel):
         self.value = Review
 
     def test_text(self):
-        """ testing review text attr"""
+        """ test review text"""
         new = self.value()
         self.assertEqual(type(new.text), str if
                          getenv('HBNB_TYPE_STORAGE') != 'db'
                          else type(None))
 
     def test_place_id(self):
-        """ testing review place_id attr"""
+        """ test review place_id"""
         new = self.value()
         self.assertEqual(type(new.place_id), str if
                          getenv('HBNB_TYPE_STORAGE') != 'db'
                          else type(None))
 
     def test_user_id(self):
-        """ testing review user_id attr"""
+        """ test review user_id"""
         new = self.value()
         self.assertEqual(type(new.user_id), str if
                          getenv('HBNB_TYPE_STORAGE') != 'db'

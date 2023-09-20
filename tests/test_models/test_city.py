@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from models import storage
 import os
 
+
 class test_City(unittest.TestCase):
     """Test the City class"""
 
@@ -48,8 +49,8 @@ class test_City(unittest.TestCase):
 
     def test_str_method(self):
         """Test __str__ method"""
-        expected_str = "[City] ({}) {}".format(self.city.id, self.city.__dict__)
-        self.assertEqual(str(self.city), expected_str)
+        expect_str = "[City] ({}) {}".format(self.city.id, self.city.__dict__)
+        self.assertEqual(str(self.city), expect_str)
 
     def test_to_dict_method(self):
         """Test to_dict method"""
@@ -71,6 +72,7 @@ class test_City(unittest.TestCase):
         state_id = city.state_id
         retrieved_city = storage.get(City, city.id)
         self.assertEqual(state_id, retrieved_city.state_id)
+
 
 if __name__ == '__main__':
     unittest.main()
