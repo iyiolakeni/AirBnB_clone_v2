@@ -1,9 +1,17 @@
 #!/usr/bin/python3
 """DBStorage class for HBNB project"""
+from models.base_model import BaseModel
+from models.amenity import Amenity
+from models.city import City
+from models.place import Place
+from models.review import Review
+from models.state import State
+from models.user import User
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from models.base_model import Base
 from os import getenv
+
 
 class DBStorage:
     """DBStorage class for HBNB project"""
@@ -25,10 +33,10 @@ class DBStorage:
 
     def all(self, cls=None):
         """Query objects from the database
-        if cls is none, query all types of objects 
-        
+        if cls is none, query all types of objects
+
         Return:
-            Dictionary of queried class  
+            Dictionary of queried class
         """
         from models import storage
         if cls:
@@ -43,18 +51,12 @@ class DBStorage:
         return {obj.__class__.__name__ + '.' + obj.id: obj for obj in objs}
 
     def new(self, obj):
-        """Add the object to the current database session"""
-        if obj:
-            self.__session.add(obj)
+        """Create the object to the current database"""
+        self.__session.add(obj)
 
     def save(self):
-        """Commit all changes of the current database session"""
+        """Commit all changes of the current database"""
         self.__session.commit()
-
-    def delete(self, obj=None):
-        """Delete obj from the current database session"""
-        if obj:
-            self.__session.delete(obj)
 
     def reload(self):
         """Create all tables and a scoped session on the current database"""
@@ -62,6 +64,13 @@ class DBStorage:
         session_factory = sessionmaker(bind=self.__engine,
                                        expire_on_commit=False)
         self.__session = scoped_session(session_factory)
+
+    def delete(self, obj=None):
+        """deletes an object from current database"""
+        if not self.__session:
+            self.reload()
+        if obj:
+            self.__session.delete(obj)
 
     def close(self):
         """Close the session"""
