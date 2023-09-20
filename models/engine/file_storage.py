@@ -9,15 +9,18 @@ from models.review import Review
 from models.state import State
 from models.user import User
 
+classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
+           "Place": Place, "Review": Review, "State": State, "User": User}
+
+
 class FileStorage:
     """This class manages storage of hbnb models in JSON format"""
 
-    def __init__(self):
-        self.__file_path = 'file.json'
-        self.__objects = {}
+    __file_path = 'file.json'
+    __objects = {}
 
     def all(self, cls=None):
-        """Returns a dictionary of models currently in storage 
+        """Returns a dictionary of models currently in storage
         or filtered by class"""
         if cls is None:
             return self.__objects
@@ -58,3 +61,7 @@ class FileStorage:
             key = obj.__class__.__name__ + '.' + obj.id
             if key in self.__objects:
                 del self.__objects[key]
+
+    def close(self):
+        """Call the reload method."""
+        self.reload()
