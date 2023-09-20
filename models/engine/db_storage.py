@@ -38,17 +38,19 @@ class DBStorage:
         Return:
             Dictionary of queried class
         """
-        from models import storage
-        if cls:
-            objs = self.__session.query(cls).all()
+        if cls is None:
+            objs = self.__session.query(State).all()
+            objs.extend(self.__session.query(City).all())
+            objs.extend(self.__session.query(User).all())
+            objs.extend(self.__session.query(Place).all())
+            objs.extend(self.__session.query(Review).all())
+            objs.extend(self.__session.query(Amenity).all())
         else:
-            classes = ['User', 'State', 'City', 'Amenity', 'Place', 'Review']
-            objs = []
-            for cls_name in classes:
-                cls = storage.all_classes()[cls_name]
-                objs.extend(self.__session.query(cls).all())
-
-        return {obj.__class__.__name__ + '.' + obj.id: obj for obj in objs}
+            if type(cls) == str:
+                cls = eval(cls)
+            objs = self.__session.query(cls)
+        return {"{}.{}".format(type(obj).__name__, obj.id):
+                obj for obj in objs}
 
     def new(self, obj):
         """Create the object to the current database"""
