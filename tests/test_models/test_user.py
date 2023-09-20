@@ -1,10 +1,7 @@
 #!/usr/bin/python3
 """ """
-from tests.test_models.test_base_model import TestBaseModel
-from models.user import User
-
-
 import unittest
+from tests.test_models.test_base_model import TestBaseModel
 from models.user import User
 from models.base_model import BaseModel
 from models.base import Base
