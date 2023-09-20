@@ -7,10 +7,6 @@ from sqlalchemy.orm import relationship
 
 class Amenity(BaseModel, Base):
     """Representation of Amenity """
-    __tablename__ = 'amenities'
+    __tablename__ = "amenities"
     name = Column(String(128), nullable=False)
-    
-    if your_storage_type == 'db':
-        place_amenities = relationship("Place", secondary="place_amenity", viewonly=False)
-    else:
-        name = ""
+    place_amenities = relationship("Place", secondary="place_amenity", viewonly=False)
