@@ -9,6 +9,7 @@ from models.user import User
 from models.place import Place
 from sqlalchemy import Column, String
 
+
 class TestUser(unittest.TestCase):
 
     def test_attributes(self):
@@ -38,6 +39,7 @@ class TestUser(unittest.TestCase):
         self.assertFalse(User.password.property.columns[0].nullable)
         self.assertTrue(User.first_name.property.columns[0].nullable)
         self.assertTrue(User.last_name.property.columns[0].nullable)
+
 
 if __name__ == '__main__':
     unittest.main()

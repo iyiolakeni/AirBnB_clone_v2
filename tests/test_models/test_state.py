@@ -1,9 +1,8 @@
 #!/usr/bin/python3
-""" """
+""" unitests for state"""
 from tests.test_models.test_base_model import TestBaseModel
 from models.state import State
 import unittest
-from models.state import State
 from models.city import City
 from models.base_model import BaseModel
 from os import getenv
@@ -18,7 +17,8 @@ class TestState(unittest.TestCase):
         self.assertTrue(hasattr(state, "cities"))
         self.assertTrue(hasattr(state, "__tablename__"))
 
-    @unittest.skipIf(getenv("HBNB_TYPE_STORAGE") != "db", "Not using DBStorage")
+    @unittest.skipIf(
+            getenv("HBNB_TYPE_STORAGE") != "db", "Not using DBStorage")
     def test_relationship(self):
         state = State()
         self.assertIsInstance(state.cities, list)
@@ -82,7 +82,8 @@ class TestState(unittest.TestCase):
         state.delete()
         self.assertNotIn(city, BaseModel._BaseModel__objects.values())
 
-    @unittest.skipIf(getenv("HBNB_TYPE_STORAGE") != "db", "Not using DBStorage")
+    @unittest.skipIf(
+            getenv("HBNB_TYPE_STORAGE") != "db", "Not using DBStorage")
     def test_delete(self):
         state = State()
         city = City(state_id=state.id)
@@ -91,7 +92,8 @@ class TestState(unittest.TestCase):
         state.delete()
         self.assertEqual(city.state_id, None)
 
-    @unittest.skipIf(getenv("HBNB_TYPE_STORAGE") != "db", "Not using DBStorage")
+    @unittest.skipIf(
+            getenv("HBNB_TYPE_STORAGE") != "db", "Not using DBStorage")
     def test_delete_no_match(self):
         state = State()
         city = City(state_id="non_matching_id")
@@ -100,7 +102,8 @@ class TestState(unittest.TestCase):
         state.delete()
         self.assertIn(city, BaseModel._BaseModel__objects.values())
 
-    @unittest.skipIf(getenv("HBNB_TYPE_STORAGE") != "db", "Not using DBStorage")
+    @unittest.skipIf(
+            getenv("HBNB_TYPE_STORAGE") != "db", "Not using DBStorage")
     def test_delete_no_match(self):
         state = State()
         city = City(state_id="non_matching_id")
@@ -142,7 +145,8 @@ class TestState(unittest.TestCase):
             state.new()
             mock_new.assert_called_once()
 
-    @unittest.skipIf(getenv("HBNB_TYPE_STORAGE") != "db", "Not using DBStorage")
+    @unittest.skipIf(
+            getenv("HBNB_TYPE_STORAGE") != "db", "Not using DBStorage")
     def test_new(self):
         state = State()
         with patch("models.storage.new") as mock_new:
@@ -157,13 +161,15 @@ class TestState(unittest.TestCase):
             state.new(city)
             mock_new.assert_called_once()
 
-    @unittest.skipIf(getenv("HBNB_TYPE_STORAGE") != "db", "Not using DBStorage")
+    @unittest.skipIf(
+            getenv("HBNB_TYPE_STORAGE") != "db", "Not using DBStorage")
     def test_new_with_object(self):
         state = State()
         city = City()
         with patch("models.storage.new") as mock_new:
             state.new(city)
             mock_new.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()
