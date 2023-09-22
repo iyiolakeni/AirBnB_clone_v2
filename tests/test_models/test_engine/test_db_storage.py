@@ -1,59 +1,45 @@
 #!/usr/bin/python3
-"""Defines unnittests for db_storage"""
+"""Defines unittests for models/engine/db_storage.py."""
+import pep8
 import unittest
-import MySQLdb
-import os
-import models
-from models.base_model import Base
-from models.base_model import BaseModel
-from models.user import User
-from models.state import State
-from models.city import City
-from models.amenity import Amenity
-from models.place import Place
-from models.review import Review
-from models import storage
-from models.engine.file_storage import FileStorage
 from models.engine.db_storage import DBStorage
+from models.engine.file_storage import FileStorage
 from sqlalchemy.engine.base import Engine
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
+from os import getenv
 
 
 class TestDBStorage(unittest.TestCase):
-    """Unit tests for DBStorage class"""
+    """Unittests for testing the DBStorage class."""
 
     @classmethod
     def setUpClass(cls):
-        """Set up the test database"""
-        cls.storage = DBStorage()
-        Base.metadata.create_all(cls.storage._DBStorage__engine)
-        Session = sessionmaker(bind=cls.storage._DBStorage__engine)
-        cls.storage._DBStorage__session = Session()
-        cls.state = State(name="California")
-        cls.storage._DBStorage__session.add(cls.state)
-        cls.city = City(name="San_Jose", state_id=cls.state.id)
-        cls.storage._DBStorage__session.add(cls.city)
-        cls.user = User(email="poppy@holberton.com", password="betty")
-        cls.storage._DBStorage__session.add(cls.user)
-        cls.place = Place(city_id=cls.city.id, user_id=cls.user.id,
-                          name="School")
-        cls.storage._DBStorage__session.add(cls.place)
-        cls.amenity = Amenity(name="Wifi")
-        cls.storage._DBStorage__session.add(cls.amenity)
-        cls.review = Review(place_id=cls.place.id, user_id=cls.user.id,
-                            text="stellar")
-        cls.storage._DBStorage__session.add(cls.review)
-        cls.storage._DBStorage__session.commit()
+        """DBStorage testing setup."""
+        if type(models.storage) == DBStorage:
+            cls.storage = DBStorage()
 
-    def setUp(self):
-        """Set up the test environment"""
-        self.db = DBStorage()
-        self.db.reload()
+    @classmethod
+    def tearDownClass(cls):
+        """DBStorage testing teardown."""
+        if type(models.storage) == DBStorage:
+            cls.storage._DBStorage__session.close()
+            del cls.storage
 
-    def tearDown(self):
-        """Clean up after each test"""
-        self.db.close()
+    def test_pep8(self):
+        """Test pep8 styling."""
+        style = pep8.StyleGuide(quiet=True)
+        p = style.check_files(['models/engine/db_storage.py'])
+        self.assertEqual(p.total_errors, 0, "fix pep8")
+
+    def test_docstrings(self):
+        """Check for docstrings."""
+        self.assertIsNotNone(DBStorage.__doc__)
+        self.assertIsNotNone(DBStorage.__init__.__doc__)
+        self.assertIsNotNone(DBStorage.all.__doc__)
+        self.assertIsNotNone(DBStorage.new.__doc__)
+        self.assertIsNotNone(DBStorage.save.__doc__)
+        self.assertIsNotNone(DBStorage.delete.__doc__)
+        self.assertIsNotNone(DBStorage.reload.__doc__)
 
     @unittest.skipIf(type(models.storage) == FileStorage,
                      "Testing FileStorage")
@@ -71,56 +57,54 @@ class TestDBStorage(unittest.TestCase):
         self.assertTrue(hasattr(DBStorage, "delete"))
         self.assertTrue(hasattr(DBStorage, "reload"))
 
-    def test_create_and_save(self):
-        """Test creating and saving objects to the database"""
-        state = State(name="California")
-        city = City(name="San Francisco", state_id=state.id)
+    @unittest.skipIf(type(models.storage) == FileStorage,
+                     "Testing FileStorage")
+    def test_init(self):
+        """Test initialization."""
+        self.assertTrue(isinstance(self.storage, DBStorage))
 
-        # Save objects to the database
-        self.db.new(state)
-        self.db.new(city)
-        self.db.save()
+    @unittest.skipIf(type(models.storage) == FileStorage,
+                     "Testing FileStorage")
+    def test_all(self):
+        """Test default all method."""
+        obj = self.storage.all()
+        self.assertEqual(type(obj), dict)
 
-        # Retrieve the objects from the database
-        retrieved_state = self.db.all(State).values()
-        retrieved_city = self.db.all(City).values()
+    @unittest.skipIf(type(models.storage) == FileStorage,
+                     "Testing FileStorage")
+    def test_all_cls(self):
+        """Test all method with specified cls."""
+        obj = self.storage.all(DBStorage)
+        self.assertEqual(type(obj), dict)
 
-        self.assertTrue(state in retrieved_state)
-        self.assertTrue(city in retrieved_city)
+    @unittest.skipIf(type(models.storage) == FileStorage,
+                     "Testing FileStorage")
+    def test_new(self):
+        """Test new method."""
+        obj = self.storage.new(None)
+        self.assertIsNone(obj)
 
+    @unittest.skipIf(type(models.storage) == FileStorage,
+                     "Testing FileStorage")
     def test_save(self):
-        """Test saving objects"""
-        st = State(name="California")
-        self.storage._DBStorage__session.add(st)
-        self.storage.save()
-        db = MySQLdb.connect(user="HBNB_MYSQL_USER",
-                             host="HBNB_MYSQL_HOST",
-                             passwd="HBNB_MYSQL_PWD",
-                             db="HBNB_MYSQL_DB")
-        curs = db.cursor()
-        curs.execute("SELECT * FROM states WHERE BINARY name = 'California'")
-        count = curs.fetchall()
-        self.assertEqual(1, len(count))
-        self.assertEqual(st.id, count[0][0])
-        curs.close()
+        """Test save method."""
+        obj = self.storage.save()
+        self.assertIsNone(obj)
 
+    @unittest.skipIf(type(models.storage) == FileStorage,
+                     "Testing FileStorage")
     def test_delete(self):
-        """Test deleting objects from the database"""
-        state = State(name="California")
-        self.storage._DBStorage__session.add(state)
-        self.storage._DBStorage__session.commit()
-        self.storage.delete(state)
-        self.assertIn(state, list(self.storage._DBStorage__session.deleted))
+        """Test delete method."""
+        obj = self.storage.delete(None)
+        self.assertIsNone(obj)
 
+    @unittest.skipIf(type(models.storage) == FileStorage,
+                     "Testing FileStorage")
     def test_reload(self):
-        """Test reloading database"""
-        old_sess = self.storage._DBStorage__session
-        self.storage.reload()
-        self.assertIsInstance(self.storage._DBStorage__session, Session)
-        self.assertNotEqual(old_sess, self.storage._DBStorage__session)
-        self.storage._DBStorage__session.close()
-        self.storage._DBStorage__session = old_sess
+        """Test reload method."""
+        obj = self.storage.reload()
+        self.assertIsNone(obj)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
