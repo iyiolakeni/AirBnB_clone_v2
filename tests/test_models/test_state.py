@@ -1,174 +1,156 @@
 #!/usr/bin/python3
-""" unitests for state"""
-from tests.test_models.test_base_model import TestBaseModel
-from models.state import State
+"""Defines unittests for models/state.py."""
+import os
+import pep8
 import unittest
+from datetime import datetime
+from models.base_model import BaseModel, Base
 from models.city import City
-from models.base_model import BaseModel
-from os import getenv
-from unittest.mock import patch
-from io import StringIO
+from models.state import State
+from models.engine.file_storage import FileStorage
+from models.engine.db_storage import DBStorage
+from sqlalchemy.exc import OperationalError
+from sqlalchemy.orm import sessionmaker
 
 
 class TestState(unittest.TestCase):
+    """Unittests for testing the State class."""
+
+    @classmethod
+    def setUpClass(cls):
+        """State testing setup."""
+        try:
+            os.rename("file.json", "tmp")
+        except IOError:
+            pass
+        FileStorage._FileStorage__objects = {}
+        cls.filestorage = FileStorage()
+        cls.state = State(name="California")
+        cls.city = City(name="San Jose", state_id=cls.state.id)
+
+        if type(models.storage) == DBStorage:
+            cls.dbstorage = DBStorage()
+            Base.metadata.create_all(cls.dbstorage._DBStorage__engine)
+            Session = sessionmaker(bind=cls.dbstorage._DBStorage__engine)
+            cls.dbstorage._DBStorage__session = Session()
+
+    @classmethod
+    def tearDownClass(cls):
+        """State testing teardown."""
+        try:
+            os.remove("file.json")
+        except IOError:
+            pass
+        try:
+            os.rename("tmp", "file.json")
+        except IOError:
+            pass
+        del cls.state
+        del cls.city
+        del cls.filestorage
+        if type(models.storage) == DBStorage:
+            cls.dbstorage._DBStorage__session.close()
+            del cls.dbstorage
+
+    def test_pep8(self):
+        """Test pep8 styling."""
+        style = pep8.StyleGuide(quiet=True)
+        p = style.check_files(["models/state.py"])
+        self.assertEqual(p.total_errors, 0, "Fix pep8")
+
+    def test_docstrings(self):
+        """Check for docstrings."""
+        self.assertIsNotNone(State.__doc__)
+
     def test_attributes(self):
-        state = State()
-        self.assertTrue(hasattr(state, "name"))
-        self.assertTrue(hasattr(state, "cities"))
-        self.assertTrue(hasattr(state, "__tablename__"))
+        """Check for attributes."""
+        st = State()
+        self.assertEqual(str, type(st.id))
+        self.assertEqual(datetime, type(st.created_at))
+        self.assertEqual(datetime, type(st.updated_at))
+        self.assertTrue(hasattr(st, "name"))
 
-    @unittest.skipIf(
-            getenv("HBNB_TYPE_STORAGE") != "db", "Not using DBStorage")
-    def test_relationship(self):
-        state = State()
-        self.assertIsInstance(state.cities, list)
-        self.assertEqual(state.cities, [])
+    @unittest.skipIf(type(models.storage) == FileStorage,
+                     "Testing FileStorage")
+    def test_nullable_attributes(self):
+        """Check that relevant DBStorage attributes are non-nullable."""
+        with self.assertRaises(OperationalError):
+            self.dbstorage._DBStorage__session.add(State())
+            self.dbstorage._DBStorage__session.commit()
+        self.dbstorage._DBStorage__session.rollback()
 
-    @unittest.skipIf(getenv("HBNB_TYPE_STORAGE") == "db", "Using DBStorage")
-    def test_cities_property(self):
-        state = State()
-        city1 = City(state_id=state.id)
-        city2 = City(state_id=state.id)
-        BaseModel._BaseModel__objects = {}
-        BaseModel._BaseModel__objects["City." + city1.id] = city1
-        BaseModel._BaseModel__objects["City." + city2.id] = city2
-        cities = state.cities
-        self.assertIsInstance(cities, list)
-        self.assertEqual(len(cities), 2)
-        self.assertIn(city1, cities)
-        self.assertIn(city2, cities)
+    @unittest.skipIf(type(models.storage) == DBStorage,
+                     "Testing DBStorage")
+    def test_cities(self):
+        """Test cities attribute."""
+        key = "{}.{}".format(type(self.city).__name__, self.city.id)
+        self.filestorage._FileStorage__objects[key] = self.city
+        cities = self.state.cities
+        self.assertTrue(isinstance(cities, list))
+        self.assertIn(self.city, cities)
 
-    @unittest.skipIf(getenv("HBNB_TYPE_STORAGE") == "db", "Using DBStorage")
-    def test_cities_property_no_match(self):
-        state = State()
-        city = City(state_id="non_matching_id")
-        BaseModel._BaseModel__objects = {}
-        BaseModel._BaseModel__objects["City." + city.id] = city
-        cities = state.cities
-        self.assertIsInstance(cities, list)
-        self.assertEqual(len(cities), 0)
+    def test_is_subclass(self):
+        """Check that State is a subclass of BaseModel."""
+        self.assertTrue(issubclass(State, BaseModel))
 
-    def test_to_dict(self):
-        state = State()
-        state_dict = state.to_dict()
-        self.assertEqual(state_dict["name"], "")
-        self.assertEqual(state_dict["cities"], [])
-        self.assertEqual(state_dict["__class__"], "State")
-        self.assertIn("id", state_dict)
-        self.assertIn("created_at", state_dict)
-        self.assertIn("updated_at", state_dict)
+    def test_init(self):
+        """Test initialization."""
+        self.assertIsInstance(self.state, State)
+
+    def test_two_models_are_unique(self):
+        """Test that different State instances are unique."""
+        st = State()
+        self.assertNotEqual(self.state.id, st.id)
+        self.assertLess(self.state.created_at, st.created_at)
+        self.assertLess(self.state.updated_at, st.updated_at)
+
+    def test_init_args_kwargs(self):
+        """Test initialization with args and kwargs."""
+        dt = datetime.utcnow()
+        st = State("1", id="5", created_at=dt.isoformat())
+        self.assertEqual(st.id, "5")
+        self.assertEqual(st.created_at, dt)
 
     def test_str(self):
-        state = State()
-        state_str = str(state)
-        self.assertIn("[State]", state_str)
-        self.assertIn(str(state.id), state_str)
-        self.assertIn(str(state.__dict__), state_str)
+        """Test __str__ representation."""
+        s = self.state.__str__()
+        self.assertIn("[State] ({})".format(self.state.id), s)
+        self.assertIn("'id': '{}'".format(self.state.id), s)
+        self.assertIn("'created_at': {}".format(
+            repr(self.state.created_at)), s)
+        self.assertIn("'updated_at': {}".format(
+            repr(self.state.updated_at)), s)
+        self.assertIn("'name': '{}'".format(self.state.name), s)
 
-    def test_str_no_id(self):
-        state = State()
-        del state.id
-        state_str = str(state)
-        self.assertIn("[State]", state_str)
-        self.assertIn("None", state_str)
-        self.assertIn(str(state.__dict__), state_str)
+    @unittest.skipIf(type(models.storage) == DBStorage,
+                     "Testing DBStorage")
+    def test_save_filestorage(self):
+        """Test save method with FileStorage."""
+        old = self.state.updated_at
+        self.state.save()
+        self.assertLess(old, self.state.updated_at)
+        with open("file.json", "r") as f:
+            self.assertIn("State." + self.state.id, f.read())
 
-    @unittest.skipIf(getenv("HBNB_TYPE_STORAGE") == "db", "Using DBStorage")
-    def test_delete(self):
-        state = State()
-        city = City(state_id=state.id)
-        BaseModel._BaseModel__objects = {}
-        BaseModel._BaseModel__objects["City." + city.id] = city
-        state.delete()
-        self.assertNotIn(city, BaseModel._BaseModel__objects.values())
+    @unittest.skipIf(type(models.storage) == FileStorage,
+                     "Testing FileStorage")
+    def test_save_dbstorage(self):
+        """Test save method with DBStorage."""
+        old = self.state.updated_at
+        self.state.save()
+        self.assertLess(old, self.state.updated_at)
 
-    @unittest.skipIf(
-            getenv("HBNB_TYPE_STORAGE") != "db", "Not using DBStorage")
-    def test_delete(self):
-        state = State()
-        city = City(state_id=state.id)
-        BaseModel._BaseModel__objects = {}
-        BaseModel._BaseModel__objects["City." + city.id] = city
-        state.delete()
-        self.assertEqual(city.state_id, None)
-
-    @unittest.skipIf(
-            getenv("HBNB_TYPE_STORAGE") != "db", "Not using DBStorage")
-    def test_delete_no_match(self):
-        state = State()
-        city = City(state_id="non_matching_id")
-        BaseModel._BaseModel__objects = {}
-        BaseModel._BaseModel__objects["City." + city.id] = city
-        state.delete()
-        self.assertIn(city, BaseModel._BaseModel__objects.values())
-
-    @unittest.skipIf(
-            getenv("HBNB_TYPE_STORAGE") != "db", "Not using DBStorage")
-    def test_delete_no_match(self):
-        state = State()
-        city = City(state_id="non_matching_id")
-        BaseModel._BaseModel__objects = {}
-        BaseModel._BaseModel__objects["City." + city.id] = city
-        state.delete()
-        self.assertIn(city, BaseModel._BaseModel__objects.values())
-
-    def test_reload(self):
-        with patch("models.storage.reload") as mock_reload:
-            state = State()
-            state.reload()
-            mock_reload.assert_called_once()
-
-    @unittest.skipIf(getenv("HBNB_TYPE_STORAGE") == "db", "Using DBStorage")
-    def test_reload(self):
-        state = State()
-        with patch("models.storage.reload") as mock_reload:
-            state.reload()
-            mock_reload.assert_not_called()
-
-    @unittest.skipIf(getenv("HBNB_TYPE_STORAGE") == "db", "Using DBStorage")
-    def test_save(self):
-        state = State()
-        with patch("models.storage.save") as mock_save:
-            state.save()
-            mock_save.assert_called_once()
-
-    def test_save_no_db(self):
-        state = State()
-        with patch("models.storage.save") as mock_save:
-            state.save()
-            mock_save.assert_not_called()
-
-    @unittest.skipIf(getenv("HBNB_TYPE_STORAGE") == "db", "Using DBStorage")
-    def test_new(self):
-        state = State()
-        with patch("models.storage.new") as mock_new:
-            state.new()
-            mock_new.assert_called_once()
-
-    @unittest.skipIf(
-            getenv("HBNB_TYPE_STORAGE") != "db", "Not using DBStorage")
-    def test_new(self):
-        state = State()
-        with patch("models.storage.new") as mock_new:
-            state.new()
-            mock_new.assert_not_called()
-
-    @unittest.skipIf(getenv("HBNB_TYPE_STORAGE") == "db", "Using DBStorage")
-    def test_new_with_object(self):
-        state = State()
-        city = City()
-        with patch("models.storage.new") as mock_new:
-            state.new(city)
-            mock_new.assert_called_once()
-
-    @unittest.skipIf(
-            getenv("HBNB_TYPE_STORAGE") != "db", "Not using DBStorage")
-    def test_new_with_object(self):
-        state = State()
-        city = City()
-        with patch("models.storage.new") as mock_new:
-            state.new(city)
-            mock_new.assert_not_called()
+    def test_to_dict(self):
+        """Test to_dict method."""
+        state_dict = self.state.to_dict()
+        self.assertEqual(dict, type(state_dict))
+        self.assertEqual(self.state.id, state_dict["id"])
+        self.assertEqual("State", state_dict["__class__"])
+        self.assertEqual(self.state.created_at.isoformat(),
+                         state_dict["created_at"])
+        self.assertEqual(self.state.updated_at.isoformat(),
+                         state_dict["updated_at"])
+        self.assertEqual(self.state.name, state_dict["name"])
 
 
 if __name__ == "__main__":
