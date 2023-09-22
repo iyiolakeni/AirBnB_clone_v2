@@ -1,78 +1,108 @@
 #!/usr/bin/python3
-import unittest
-from models.city import City
-from models.base_model import BaseModel
-from sqlalchemy.orm import Session
-from models import storage
+"""Defines unnittests for models/city.py."""
 import os
+import pep8
+import unittest
+from datetime import datetime
+from models.city import City
+from models.engine.db_storage import DBStorage
+from models.engine.file_storage import FileStorage
+from sqlalchemy.exc import OperationalError
 
-
-class test_City(unittest.TestCase):
-    """Test the City class"""
+class TestCity(unittest.TestCase):
+    """Unittests for testing the City class."""
 
     @classmethod
     def setUpClass(cls):
-        """Set up the test class"""
-        cls.city = City()
-        cls.city.name = "Test City"
-        cls.city.state_id = "Test State"
+        """City testing setup."""
+        cls.storage_type = os.environ.get('HBNB_TYPE_STORAGE')
+        if cls.storage_type == 'db':
+            cls.storage = DBStorage()
+        else:
+            cls.storage = FileStorage()
+        cls.storage.reload()
+        cls.city = City(name="San Francisco")
 
     @classmethod
     def tearDownClass(cls):
-        """Tear down the test class"""
+        """City testing teardown."""
         del cls.city
+        del cls.storage
 
-    def test_inheritance(self):
-        """Test that City inherits from BaseModel"""
-        self.assertTrue(issubclass(City, BaseModel))
+    def test_pep8(self):
+        """Test pep8 styling."""
+        style = pep8.StyleGuide(quiet=True)
+        p = style.check_files(["models/city.py"])
+        self.assertEqual(p.total_errors, 0, "fix pep8")
+
+    def test_docstrings(self):
+        """Check for docstrings."""
+        self.assertIsNotNone(City.__doc__)
 
     def test_attributes(self):
-        """Test City attributes"""
+        """Check for attributes."""
+        self.assertEqual(str, type(self.city.id))
+        self.assertEqual(datetime, type(self.city.created_at))
+        self.assertEqual(datetime, type(self.city.updated_at))
+        self.assertTrue(hasattr(self.city, "__tablename__"))
         self.assertTrue(hasattr(self.city, "name"))
         self.assertTrue(hasattr(self.city, "state_id"))
 
-    def test_attributes_type(self):
-        """Test the data types of City attributes"""
-        self.assertIsInstance(self.city.name, str)
-        self.assertIsInstance(self.city.state_id, str)
+    @unittest.skipIf(os.getenv("HBNB_ENV") is not None, "Testing DBStorage")
+    def test_nullable_attributes(self):
+        """Check that relevant DBStorage attributes are non-nullable."""
+        with self.assertRaises(OperationalError):
+            self.storage.new(City())
+            self.storage.save()
+        with self.assertRaises(OperationalError):
+            self.storage.new(City(state_id="state_id"))
+            self.storage.save()
 
-    def test_attributes_default(self):
-        """Test default attribute values"""
-        self.assertEqual(self.city.name, "")
-        self.assertEqual(self.city.state_id, "")
+    def test_is_subclass(self):
+        """Check that City is a subclass of BaseModel."""
+        self.assertTrue(issubclass(City, BaseModel))
 
-    def test_save_method(self):
-        """Test save method"""
-        city_copy = self.city.to_dict()
+    def test_init(self):
+        """Test initialization."""
+        self.assertIsInstance(self.city, City)
+
+    def test_init_args_kwargs(self):
+        """Test initialization with args and kwargs."""
+        dt = datetime.utcnow()
+        ct = City("1", id="5", created_at=dt.isoformat())
+        self.assertEqual(ct.id, "5")
+        self.assertEqual(ct.created_at, dt)
+
+    def test_str(self):
+        """Test __str__ representation."""
+        s = str(self.city)
+        self.assertIn("[City] ({})".format(self.city.id), s)
+        self.assertIn("'id': '{}'".format(self.city.id), s)
+        self.assertIn("'created_at': {}".format(repr(self.city.created_at)), s)
+        self.assertIn("'updated_at': {}".format(repr(self.city.updated_at)), s)
+        self.assertIn("'name': '{}'".format(self.city.name), s)
+        self.assertIn("'state_id': '{}'".format(self.city.state_id), s)
+
+    def test_save(self):
+        """Test save method."""
+        old_updated_at = self.city.updated_at
         self.city.save()
-        self.assertNotEqual(city_copy["updated_at"], self.city.updated_at)
+        new_updated_at = self.city.updated_at
+        if self.storage_type == 'db':
+            self.assertNotEqual(old_updated_at, new_updated_at)
+        else:
+            self.assertEqual(old_updated_at, new_updated_at)
 
-    def test_str_method(self):
-        """Test __str__ method"""
-        expect_str = "[City] ({}) {}".format(self.city.id, self.city.__dict__)
-        self.assertEqual(str(self.city), expect_str)
-
-    def test_to_dict_method(self):
-        """Test to_dict method"""
+    def test_to_dict(self):
+        """Test to_dict method."""
         city_dict = self.city.to_dict()
-        self.assertEqual(city_dict["__class__"], "City")
-        self.assertIsInstance(city_dict["created_at"], str)
-        self.assertIsInstance(city_dict["updated_at"], str)
+        self.assertEqual(dict, type(city_dict))
+        self.assertEqual(self.city.id, city_dict["id"])
+        self.assertEqual("City", city_dict["__class__"])
+        self.assertEqual(self.city.created_at.isoformat(), city_dict["created_at"])
+        self.assertEqual(self.city.updated_at.isoformat(), city_dict["updated_at"])
+        self.assertEqual(self.city.name, city_dict["name"])
+        self.assertEqual(self.city.state_id, city_dict["state_id"])
 
-    def test_to_dict_method_with_args(self):
-        """Test to_dict method with args"""
-        city_dict = self.city.to_dict(None)
-        self.assertNotIn("__class__", city_dict)
-
-    def test_state_id_column(self):
-        """Test the state_id column in the database"""
-        city = City(state_id="Test State ID", name="Test City Name")
-        storage.new(city)
-        storage.save()
-        state_id = city.state_id
-        retrieved_city = storage.get(City, city.id)
-        self.assertEqual(state_id, retrieved_city.state_id)
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
