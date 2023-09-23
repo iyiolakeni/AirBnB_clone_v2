@@ -16,6 +16,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 class DBStorage:
     """DBStorage class for HBNB project"""
 
+    # Private class attributes
     __engine = None
     __session = None
 
@@ -35,7 +36,7 @@ class DBStorage:
 
         If cls is None, queries all types of objects.
 
-        Return:
+        Returns:
             Dict of queried classes in the format <class name>.<obj id> = obj.
         """
         classes = [State, City, User, Place, Review, Amenity]
