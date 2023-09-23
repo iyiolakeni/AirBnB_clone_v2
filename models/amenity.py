@@ -1,11 +1,11 @@
 #!/usr/bin/python3
 """Defines the Amenity class."""
+from models.base_model import Base
+from models.base_model import BaseModel
 from sqlalchemy import Column
 from sqlalchemy import String
-from sqlalchemy import Table
-from sqlalchemy import ForeignKey
-from models.base_model import BaseModel
-from models.base_model import Base
+from sqlalchemy.orm import relationship
+
 
 class Amenity(BaseModel, Base):
     """Represents an Amenity for a MySQL database.
@@ -17,14 +17,7 @@ class Amenity(BaseModel, Base):
         name (sqlalchemy String): The amenity name.
         place_amenities (sqlalchemy relationship): Place-Amenity relationship.
     """
-    __tablename__ = 'amenities'
-    
+    __tablename__ = "amenities"
     name = Column(String(128), nullable=False)
-    
-    place_amenities = Table(
-        "place_amenity", Base.metadata,
-        Column("place_id", String(60), ForeignKey("places.id"),
-               primary_key=True, nullable=False),
-        Column("amenity_id", String(60), ForeignKey("amenities.id"),
-               primary_key=True, nullable=False)
-    )
+    place_amenities = relationship("Place", secondary="place_amenity",
+                                   viewonly=False)
