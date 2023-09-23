@@ -18,7 +18,6 @@ class TestHBNBCommand(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """HBNBCommand testing setup."""
-        """
         try:
             os.rename("file.json", "tmp")
         except IOError:
