@@ -27,11 +27,7 @@ class TestHBNBCommand(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """HBNBCommand testing teardown.
-
-        Restore original file.json.
-        Delete the test HBNBCommand instance.
-        """
+        """HBNBCommand testing teardown."""
         try:
             os.rename("tmp", "file.json")
         except IOError:
