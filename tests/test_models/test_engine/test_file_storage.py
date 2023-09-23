@@ -1,9 +1,10 @@
 #!/usr/bin/python3
-"""Defines unittests for models/engine/file_storage.py."""
+"""Defines unnittests for models/engine/file_storage.py."""
 import os
 import json
 import pep8
 import unittest
+from datetime import datetime
 from models.base_model import BaseModel
 from models.user import User
 from models.state import State
@@ -19,12 +20,6 @@ class TestFileStorage(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        """FileStorage testing setup.
-
-        Temporarily renames any existing file.json.
-        Resets FileStorage objects dictionary.
-        Creates instances of all class types for testing.
-        """
         try:
             os.rename("file.json", "tmp")
         except IOError:
@@ -167,7 +162,7 @@ class TestFileStorage(unittest.TestCase):
         self.storage.delete(bm)
         self.assertNotIn(bm, FileStorage._FileStorage__objects)
 
-    def test_delete_nonexistent(self):
+    def test_delete_nonexistant(self):
         """Test delete method with a nonexistent object."""
         try:
             self.storage.delete(BaseModel())
