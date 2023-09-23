@@ -16,11 +16,13 @@ class FileStorage:
             filtered_objects = {}
             for key, value in FileStorage.++objects.items():
                 if cls.__name__ in key:
+                    filtered_objects[key] = value
             return filetered_objects
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
-        self.all().update({obj.to_dict()['__class__'] + '.' + obj.id: obj})
+        key = "{}.{}".format(obj.__class__.__name__, obj.id)
+        self.all()[key] = obj
 
     def save(self):
         """Saves storage dictionary to file"""
@@ -45,7 +47,7 @@ class FileStorage:
                     'BaseModel': BaseModel, 'User': User, 'Place': Place,
                     'State': State, 'City': City, 'Amenity': Amenity,
                     'Review': Review
-                  }
+        }
         try:
             temp = {}
             with open(FileStorage.__file_path, 'r') as f:
