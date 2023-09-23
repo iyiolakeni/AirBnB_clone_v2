@@ -6,9 +6,7 @@ from sqlalchemy import Table
 from sqlalchemy import ForeignKey
 from models.base_model import BaseModel
 from models.base_model import Base
-from sqlalchemy.ext.declarative import declarative_base
 
-Base = declarative_base()
 class Amenity(BaseModel, Base):
     """Represents an Amenity for a MySQL database.
 
