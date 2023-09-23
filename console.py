@@ -5,8 +5,6 @@ from shlex import split
 from models import storage
 from sqlalchemy.ext.declarative import declarative_base
 
-Base = declarative_base()
-
 class HBNBCommand(cmd.Cmd):
     """Defines the HolbertonBnB command interpreter."""
 
