@@ -3,7 +3,7 @@
 sudo apt-get update
 sudo sed -i '/location \/hbnb_static {/,/}/d' /etc/nginx/sites-enabled/default
 sudo apt-get -y install nginx
-sudo apt install ufw
+sudo useradd ubuntu
 sudo ufw allow 'Nginx HTTP'
 
 sudo mkdir -p /data/
