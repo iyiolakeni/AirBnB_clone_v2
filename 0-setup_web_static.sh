@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Install Nginx if not already installed
 
-sudo useradd <ubuntu>
+sudo useradd ubuntu
 
 if ! dpkg -l | grep -q nginx; then
     sudo apt-get update
