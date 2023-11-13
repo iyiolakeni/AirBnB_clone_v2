@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # Generates a .tgz archive from the contents of web_static.
 import os.path
 from fabric.api import local
